@@ -75,7 +75,7 @@ public class Annotation_Class {
      *
      *        因此，当获取某个类的Class对象，然后获取其field、method等对象，通过上述4个方法提取其中的注解，然后获取注解的详细信息
      *
-     *        
+     *
      *
      *
      */
