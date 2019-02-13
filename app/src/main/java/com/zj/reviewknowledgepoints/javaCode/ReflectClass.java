@@ -2,9 +2,10 @@ package com.zj.reviewknowledgepoints.javaCode;
 
 /**
  * Created by zj on 2019-02-12 11:39.
- *  java 反射
- *  https://www.cnblogs.com/rocomp/p/4781987.html
- *  https://blog.csdn.net/u013534071/article/details/80254247
+ * java 反射
+ * https://www.cnblogs.com/rocomp/p/4781987.html
+ * https://blog.csdn.net/u013534071/article/details/80254247
+ * https://www.jianshu.com/p/3afa47e9112e
  */
 public class ReflectClass {
 
@@ -153,6 +154,43 @@ public class ReflectClass {
      *
      *                  3.缓存机制 ： 所有加载过的Class都会被缓存，当程序需要使用某个Class时，类加载器先从缓存区寻找该Class，只有当缓存区不存在，系统才会去读取该Class对应的二进制数据，并将其转换成Class对象，存入缓存区
      *                              这也是为什么修改了Class后，必须重启jvm，程序修改才会生效
+     *
+     *               - loadClass(String name，boolean reslove)
+     *                  流程： 缓存 -> 父类加载器 -> 没有父类 -> 启动类加载器 -> 自己的findClass()
+     *
+     *               - findClass() 由自己负责加载类的方法，在自定义类加载时，需要重写该方法并编写加载规则，取得要加载类的字节码后转换成流，然后调用defineClass()方法生成类的Class对象
+     *
+     *               -defineClass() 将byte字节流解析成jvm能够识别的Class对象
+     *
+     *               - resolveClass 解析Class对象，即将字节码文件中的符号引用转换成直接引用
+     *
+     *          =================================================================================================================================
+     *
+     *          android类加载过程：
+     *                                         BaseDexClassLoader
+     *                                               |
+     *              -------------------------------------------------------------------------
+     *             |                                                                        |
+     *       PathClassLoader                                                           DexClassLoader
+     *          super(dexPath,null,libraryPath,parent)                             super(dexPath,new File(optimizedDirectory),libraryPath,parent)
+     *
+     *        - PathClassLoader 被用来加载本地文件系统上的文件或目录，但不能从网络上加载，关键是它被用来加载系统类和我们的应用程序的
+     *
+     *        - DexClassLoader 用来加载jar、apk、其实还包括zip文件或者直接加载dex文件，可以被用来执行未安装的代码或未被应用加载过的代码
+     *
+     *        注意：
+     *          这里着重看一下第二个参数，之前说过PathClassLoader中调用父类构造器的时候这个参数穿了null，因为加载app应用的时候我们的apk已经被安装到本地文件系统上了，其内部的dex已经被提取并且执行过优化了，优化之后放在系统目录/data/dalvik-cache下。
+     *
+     *               dexpath目前只支持“.dex”、“.jar”、“.apk”、“.zip”这四种类型。
+     *
+     *        参数定义：
+     *              1. dexPath ： 需要被加载的文件地址，可以多个，用file.pathSeparator分割
+     *              2.optimizedDirectory： dex文件被加载后会被编译器优化，优化之后的dex存放的路径，不可以为null
+     *                                   注意，注释中也提到需要一个应用私有的可写路径，以防止应用被注入攻击，并且给出了例子 File dexOutputDir = context.getDir("dex", 0);
+     *              3.libraryPath： 包含libraries的目录列表，plugin中有so文件，需要将so拷贝到sd卡上，然后把所有so所在目录当参数传入，通用用File.pathSeparator分割，如果没有则传null就行了,会自动加上系统so库的存放目录
+     *              4.parent： 父类构造器
+     *
+     *         其中：Element 中包含File、ZipFile、DexFile
      *
      *
      *
