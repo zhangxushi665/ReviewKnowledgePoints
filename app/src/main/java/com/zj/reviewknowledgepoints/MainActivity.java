@@ -10,6 +10,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*Configuration configuration = getResources().getConfiguration();
+
+        int smallestScreenWidthDp = configuration.smallestScreenWidthDp;
+
+        Log.w("85122574412", "onCreate: " + smallestScreenWidthDp);*/
 
     }
 }
